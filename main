@@ -1,0 +1,400 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+#include <time.h>
+#define N_INIC 0
+
+/****************************************************************************************************/
+typedef struct node
+{	unsigned char valor;
+	struct node *next;
+}sinal_t;
+
+char menuPrincipal (void);
+char subMenuA(void);
+char subMenuB(void);
+sinal_t *corrompe_sinal(int corrupcao, int num_elemts, sinal_t *s_original, sinal_t *s_corrompido);
+sinal_t *importa_sinal(sinal_t *s_original, int header,int *num_elemts);
+sinal_t *anula_amostra(sinal_t *s_original, int a_pos);
+sinal_t *reconstroi_sinal(sinal_t *s_original, sinal_t *s_reconstruido);
+
+/****************************************************************************************************/
+
+int main(void)
+{
+	sinal_t *s_original=NULL, *s_corrompido=NULL, *s_reconstruido=NULL, *imprime=NULL;
+	int quit=0;
+	char opPrinc, opSubA, opSubB;
+	int num_elemts=0, corrupcao=0;
+	char header[43];
+
+	do
+	{
+		opPrinc=menuPrincipal();
+        switch(opPrinc)
+        {
+	        case '1' :  s_original=importa_sinal(s_original, header, &num_elemts);
+	            		break;
+	        case '2' :  printf("\nInsira a percentagem de corrupcao (5%% ou 3%%):");
+	        			do
+	        			{
+	        		 		scanf(" %d", &corrupcao);
+	        			}while(corrupcao!= 5 && corrupcao!= 3);
+	        			s_corrompido=corrompe_sinal(corrupcao, num_elemts, s_original, s_corrompido);
+	            		break;
+	        case '3' :
+	            		imprime = s_original;
+        				while ( imprime != NULL )
+        				{
+					        printf( "%d\n", imprime->valor );
+					        imprime = imprime->next;
+        				}
+	            		break;
+	        case '4' :
+		                do
+		                {
+		                    opSubA=subMenuA();
+		                    switch(opSubA)
+		                    {
+		                        case'1':
+		                            printf("Opcao 1");
+		                        break;
+		                        case'2':
+		                            printf("Opcao 2");
+		                        break;
+		                        case'3':
+		                            printf("Opcao 3");
+		                        break;
+		                        case'0':
+		                            printf("Regressar ao Menu Principal");
+		                    }
+		                }while(opSubA!='0');
+			            break;
+			case '5' :
+			            do
+		                {
+		                    opSubB=subMenuB();
+		                    switch(opSubB)
+		                    {
+		                        case'1'://system("wmplayer normal.wav");
+		                        		system("C:\\Program Files (x86)\\Windows Media Player\\mplayer2.exe /play /close normal.wav");
+		                        		printf("Opcao 1");
+		                           		break;
+		                        case'2':printf("Opcao 2");
+		                        		break;
+		                        case'3':printf("Opcao 3");
+		                        		break;
+		                        case'0':printf("Regressar ao Menu Principal");
+		                    }
+		                }
+		                while(opSubB!='0');
+			            break;
+	        case '6' :	printf("calor");
+	            		break;
+	        case '0' :	printf("\nFim do programa\n"); quit=1;
+	            		break;
+	        default:	printf("\t\t\t   Opcao INVALIDA \n\n Insira novamente Opcao (I,C,,R,P,C,1,F)--> ");
+	    }
+	}while(!quit);
+
+return 0;
+}
+
+/****************************************************************************************************/
+
+char menuPrincipal(void)
+{
+    char opPrinc;
+
+    printf("\n************************ Reconstrucao de Ficheiro de Audio ************************ \n");
+    printf("\n [1] - Importar um sinal de audio");
+    printf("\n [2] - Corromper o sinal");
+    printf("\n [3] - Reconstruir o sinal");
+    printf("\n [4] - Play - reproduzir um sinal");
+    printf("\n [5] - Distorcao existente");
+    printf("\n [6] - Detalhes do sinal");
+    printf("\n [0] - Fim");
+    printf("\n \t\t Seleccione opcao: ");
+
+    do
+    {
+        fflush(stdin);
+        scanf("%c", &opPrinc);
+
+        if (opPrinc != '1'  && opPrinc != '2' && opPrinc != '3' && opPrinc!='4' && opPrinc!='5' && opPrinc!='6' && opPrinc != '0')
+                printf("\t\t\t   Opcao INVALIDA \n\n Insira novamente Opcao (1,2,3,4,5,6,0)--> ");
+
+    }while(opPrinc != '1' && opPrinc!='2' && opPrinc!='3' && opPrinc!='4' && opPrinc!='5' && opPrinc!='6' && opPrinc!='0');
+
+    return opPrinc;
+}
+
+char subMenuA()
+{
+    char op;
+
+    printf("\n************************ REPRODUCAO DE UM SINAL ************************ \n");
+
+    printf("\n [1] Reproduzir Sinal Original");
+    printf("\n [2] Reproduzir Sinal Corrompido");
+    printf("\n [3] Reproduzir Sinal Reconstruido");
+    printf("\n [0] Regressar ao Menu Principal");
+    printf("\n \t\t Seleccione opcao: ");
+
+    do
+    {
+        fflush(stdin);
+        scanf("%c", &op);
+
+        if (op !='1' && op !='2'&& op !='3' && op!='0')
+        {
+            printf("\t\t\t   Opcao INVALIDA \n\n Insira novamente Opcao (1,2,3,0)--> ");
+        }
+    }
+    while (op !='1' && op !='2'&& op !='3' && op!='0');
+
+    return op;
+}
+
+char subMenuB()
+{
+    char op;
+    printf("\n************************ CALCULO DA DISTORCAO ************************ \n");
+
+    printf("\n [1] Distorcao entre sinal Corrompido e Original");
+    printf("\n [2] Distorcao entre sinal Reconstruido e Original");
+    printf("\n [3] Melhoria conseguida com a Reconstrucao");
+    printf("\n [0] Regressar ao Menu Principal");
+    printf("\n \t\t Seleccione opcao: ");
+
+    do
+    {
+        fflush(stdin);
+        scanf("%c", &op);
+
+        if (op !='1' && op !='2'&& op !='3' && op!='0')
+        {
+            printf("\t\t\t   Opcao INVALIDA \n\n Insira novamente Opcao (1,2,3,0)--> ");
+        }
+    }
+    while (op !='1' && op !='2'&& op !='3' && op!='0');
+
+    return op;
+}
+
+sinal_t *corrompe_sinal(int corrupcao, int num_elemts, sinal_t *s_original, sinal_t *s_corrompido)
+{
+	int num_anulamentos;	//int *gera_rand;
+
+	sinal_t *conductor, *new_node, *imprime;	//ponteiro auxiliar que percorre a lista
+
+	int i, j, procurar_nr_aleat, posicao_anular;
+	int *posicoes_a_anular;
+
+
+	if(corrupcao==3)
+		num_anulamentos=0.03*num_elemts;
+	if(corrupcao==5)
+		num_anulamentos=0.05*num_elemts;
+
+
+	posicoes_a_anular=(int*) malloc(sizeof(int)*num_anulamentos);
+
+
+	printf("\n%d", num_elemts);
+	printf("\n%d", num_anulamentos);
+
+
+	for(i=0; i<num_anulamentos; i++)	// se lá houver um zero, aceita-o como número aleatório
+		posicoes_a_anular[i]=-1; 		// caso contrário, se lá existisse um zero inicialmente,
+										// considerá-lo-ia como repetido e geraria outro
+
+	srand((unsigned int)time(NULL)); 	//gera semente
+	procurar_nr_aleat=1; 				// para obrigar a entrar no ciclo while a procurar um número aleatório
+
+
+
+	for(i=0; i<num_anulamentos; i++)	// para todas as amostras a anular
+	{
+		while(procurar_nr_aleat==1)		// busca uma posição a anular enquanto a encontrada for repetida
+		{
+			posicao_anular=(num_elemts)*rand()/(RAND_MAX);
+			//printf("Posicao a anular: %d\n", posicao_anular);
+			procurar_nr_aleat=0;
+			for(j=0; j< num_anulamentos; j++)
+			{
+				if(posicao_anular==posicoes_a_anular[j])	//se essa posicao ja existe anulada
+				{
+					//printf("\t\t\t %d repetido\n", posicao_anular);
+					procurar_nr_aleat=1;
+					break; 		// sai do ciclo (nao anula)
+				}
+			} // fim for() interior
+		} // fim while()
+
+		posicoes_a_anular[i]=posicao_anular;
+		//printf("mais um novo\n");
+		procurar_nr_aleat=1;
+	} // fim for() exterior
+
+
+	printf("\nGerou %d numeros aleato'rios entre %d e %d. ", num_anulamentos,0,num_elemts-1);
+
+
+	while(s_original != 0)
+	{
+	    // Create the memory for the destination list node.
+	    new_node=(sinal_t *)malloc(sizeof(sinal_t));
+	    if(new_node == 0)
+	    {
+	       printf("Falha na alocação!"), exit(1);
+	    }
+	    // Copy the data from the source to dest node
+	    new_node->valor = s_original->valor;
+	    new_node->next = 0;
+
+		if (s_corrompido == 0)
+		{
+	        // keep the root for the destination list.
+	        s_corrompido = new_node;
+	        conductor = new_node;
+	    }
+	    else
+	    {
+	        // point the newly created node to the previous created node.
+	        conductor->next = new_node;
+	        // keep the new node to use it as previous node in next node creation.
+	        conductor = new_node;
+	    }
+	    s_original = s_original->next;
+    }
+
+	printf("\nasdasdasdasdasd\n");
+	printf("\n%d\n\n", num_anulamentos);
+
+
+	printf("\nsinal corrompido1-------> %d\n", s_corrompido);
+
+/**********************CORRUPÇÃO DO SINAL********************/
+
+    for (i=0; i<num_anulamentos; i++)
+    {
+    	s_corrompido=anula_amostra(s_corrompido, posicoes_a_anular[i]);
+    }
+    	imprime = s_corrompido;
+
+    while ( imprime != NULL )
+    {
+    	printf( "%d ", imprime->valor );
+    	imprime = imprime->next;
+    }
+
+
+/***********************FIM DA CORRUPÇÃO**********************/
+
+    return s_corrompido;
+}
+
+
+
+/****************************************************************************************************/
+
+sinal_t *importa_sinal(sinal_t *s_original, int header, int *num_elemts)
+{
+	FILE *fich1;
+	int aux;// num_elemts=0;
+	char amostra, nome_fich[20];
+	sinal_t *conductor, *new_node, *imprime;
+
+	fflush(stdin);
+	printf("Insira o nome do ficheiro que pretende abrir.\n");
+	gets(nome_fich);
+
+	fich1=fopen(nome_fich, "rb");
+	if(fich1==NULL)
+	{
+		printf("Erro ao abrir ficheiro");
+		exit(1);
+	}
+	if(fseek(fich1, 44, 0)!=0)
+ 		printf("Erro na procura da posicao");
+	else
+	{
+		do
+		{
+			aux = fread(&amostra, sizeof(char), 1, fich1);
+			new_node = (sinal_t*) malloc(sizeof(sinal_t));
+			new_node->valor=amostra;
+			new_node->next = NULL;
+			if (s_original==NULL)
+			{
+				s_original=new_node;
+				conductor=new_node;
+			}
+			else
+			{
+    			conductor->next=new_node;
+    			conductor=new_node;
+    		}
+    		(*num_elemts)++;
+		} while (aux!=0);
+		(*num_elemts)--;
+	}
+
+	printf("\n\nNumero de amostras (nos) %d\n", *num_elemts );
+	fclose(fich1);
+	printf("\nsinal original-------> %d\n", s_original);
+
+
+/********************TESTE DA LISTA PARA GRAVAR EM FICHEIRO************************/
+
+	int grava;
+	FILE *teste;
+
+	teste=fopen("dados.txt","w");
+
+    if(teste==NULL)
+    {
+        printf("Impossivel abrir ficheiro");
+    }
+    else
+    {
+        imprime = s_original;
+           for(grava=0; grava<*num_elemts; grava++)
+        {
+            printf( "%d ", imprime->valor );
+            fprintf(teste,"\nvalor: %d\n",imprime->valor);
+            imprime = imprime->next;
+        }
+
+/* COM ESTE CÓDIGO ELE REPETE A ÚLTIMA AMOSTRA, FICA NO FINAL DO FICHEIRO 2 VEZES A '123'
+
+    while ( imprime != NULL )
+    {
+    	//printf( "%d\n", imprime->valor );
+    	fprintf(teste,"\nvalor: %d\n",imprime->valor);
+    	imprime = imprime->next;
+    }
+    */
+    }
+    fclose(teste);
+
+/***********************FIM DE TESTE***********************************/
+
+	return s_original;
+}
+
+/****************************************************************************************************/
+sinal_t *anula_amostra(sinal_t *s_corrompido, int a_pos)
+{
+	sinal_t *backup;
+
+	backup=s_corrompido;
+	while(s_corrompido)
+	{
+		if(s_corrompido->valor==a_pos)
+			s_corrompido->valor=127;
+		s_corrompido=s_corrompido->next;
+	}
+	return backup;
+}
